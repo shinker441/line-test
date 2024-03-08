@@ -24,7 +24,7 @@ line_bot_api = LineBotApi("2003969131")
 handler = WebhookHandler("2360bd36b3c2e5a794e0834b4ddd5fc2")
 
 load_dotenv()
-channelAccessToken = os.environ["LINE_CHANNEL_ACCESS_TOKEN"]
+channelAccessToken = os.environ["l9mxZXowA7nMVUh0Ro2DZlGq6kezJfvY3bpheuI0i1XfK6xUhHcHdqAh8i9W0rbVC7p/u4R2w4eX4oY/7F5jUOvInvGqsm5AjwHGQPuasuuxnflF9T2AN8kfuMrA06K+AjETChr+3jiy35z srQhwcQdB04t89/1O/w1cDnyilFU="]
 
 app.add_middleware(
     CORSMiddleware,
