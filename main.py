@@ -1,9 +1,9 @@
-import os
-import json
-import re
-import requests
-import asyncio
-import aiohttp
+# import os
+# import json
+# import re
+# import requests
+# import asyncio
+# import aiohttp
 from fastapi import FastAPI, Query, Header, Request
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,6 +12,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent
 from starlette.exceptions import HTTPException
+from pydantic import BaseModel
 
 load_dotenv()
 # FastAPIのインスタンス作成
@@ -30,47 +31,38 @@ app.add_middleware(
 )
 
 
+class Body(BaseModel):
+    questionSentence: str
+    currentStep: str
+    replyToken: str
+
+
 @app.get("/")
 def root():
     return {"title": 'hello world'}
 
 
 @app.post("/webhook")
-async def line_webhook(message: str = Query(None)):  # Queryのデフォルト値をNoneに設定
+async def line_webhook(body: Body):
     print("===========================================================================")
     global A
 
-    if message == "こんにちは":
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        A = {
-            "message":
-                {
-                    "type": "text",
-                    "text": "hello",
-                }
-        }
-    elif message == "こんばんわ":
-        A = {
-            "message":
-                {
-                    "type": "text",
-                    "text": "good night",
-                }
-        }
-    else:
-        A = {
-            "message":
-                {
-                    "type": "text",
-                    "text": "hello world"
-                }
-        }
+    A= {
+        "replyToken": body.replyToken,
+        "messeages": [
+            {
+                "type": "text",
+                "text": "hello",
+            }
+        ]
+    }
+    print(A)
     return A
 
 
 @handler.add(MessageEvent)
-def handle_message(event):
-    line_bot_api.reply_message(event.reply_token, A)
+def handle_message(A):
+    line_bot_api.reply_message(A.replyToken, A)
 
 # async def send_request():
 #     while True:
