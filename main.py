@@ -41,6 +41,7 @@ async def line_webhook(message: str = Query(None)):  # Queryのデフォルト�
     global A
 
     if message == "こんにちは":
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         A = {
             "message":
                 {
