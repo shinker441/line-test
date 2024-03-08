@@ -37,7 +37,7 @@ def root():
 
 @app.post("/webhook")
 async def line_webhook(message: str = Query(None)):  # Queryのデフォルト値をNoneに設定
-    print(message)
+    print("===========================================================================")
     global A
 
     if message == "こんにちは":
