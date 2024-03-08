@@ -4,6 +4,7 @@
 # import requests
 # import asyncio
 # import aiohttp
+import requests
 from fastapi import FastAPI, Query, Header, Request
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,14 +14,17 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent
 from starlette.exceptions import HTTPException
 from pydantic import BaseModel
+from typing import List
 
-load_dotenv()
 # FastAPIのインスタンス作成
 app = FastAPI()
 
 # LINE Botに関するインスタンス作成
 line_bot_api = LineBotApi("2003969131")
 handler = WebhookHandler("2360bd36b3c2e5a794e0834b4ddd5fc2")
+
+load_dotenv()
+channelAccessToken = os.environ["LINE_CHANNEL_ACCESS_TOKEN"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,10 +35,9 @@ app.add_middleware(
 )
 
 
-class Body(BaseModel):
-    questionSentence: str
-    currentStep: str
-    replyToken: str
+class LineModel(BaseModel):
+    destination: str
+    events: List
 
 
 @app.get("/")
@@ -43,8 +46,12 @@ def root():
 
 
 @app.post("/webhook")
-async def line_webhook(request: Request):
-    data = await request.json()
+async def line_webhook(request: LineModel):
+    msg = request.events[0]["message"]["text"]
+    replyToken = request.events[0]["replyToken"]
+
+    print("ユーザ: %s" % msg)
+
     # global A
 
     # A= {
@@ -57,12 +64,33 @@ async def line_webhook(request: Request):
     #     ]
     # }
     # print(body)
-    return {"message": "recieved"}
 
+    sendMsg = {"message": "recieved"}
 
-@handler.add(MessageEvent)
-def handle_message(A):
-    line_bot_api.reply_message(A.replyToken, A)
+    sendPostHead = {
+        "Authorization": channelAccessToken
+    }
+
+    sendPostData = {
+        "replyToken": replyToken,
+        "messages": [
+            {
+                "type": "text",
+                "text": sendMsg
+            }
+        ]
+    }
+
+    res = requests.post("https://api.line.me/v2/bot/message/reply",
+                        headers=sendPostHead, json=sendPostData)
+
+    print("linebotのレスポンス: %s" % res)
+
+    return request
+
+# @handler.add(MessageEvent)
+# def handle_message(A):
+#     line_bot_api.reply_message(A.replyToken, A)
 
 # async def send_request():
 #     while True:
