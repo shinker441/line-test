@@ -12,11 +12,9 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent
 from starlette.exceptions import HTTPException
 
-res_data = ""
 load_dotenv()
 # FastAPIのインスタンス作成
-app = FastAPI(title="kris'slinebot-sample",
-              description="This is sample of kris's LINE Bot.")
+app = FastAPI()
 
 # LINE Botに関するインスタンス作成
 line_bot_api = LineBotApi("2003969131")
@@ -33,36 +31,32 @@ app.add_middleware(
 
 @app.get("/")
 def root():
-    return {"title": app.title, "description": app.description}
+    return {"title": 'hello world'}
 
 
-@app.post("/")
-async def root(message: str = Query(None)):  # Queryのデフォルト値をNoneに設定
+@app.post("/webhook")
+async def webhook(message: str = Query(None)):  # Queryのデフォルト値をNoneに設定
     if message == "こんにちは":
         res_data = "message:こんにちは！ようこそ"
+        print(res_data)
         return res_data
 
     elif message == "質問してもいいですか":
         res_data = "message:もちろんです。何かお困りですか？"
+        print(res_data)
         return res_data
     else:
         res_data = "すいません。よくわかりません。"
+        print(res_data)
         return res_data
 
 
 @handler.add(MessageEvent)
 def handle_message(event):
-    """
-    LINE Messaging APIのハンドラより呼び出される処理です。
-    受け取ったメッセージに従い返信メッセージを返却します。
+    
+    print()
 
-    Parameters
-    ----------
-    event : MessageEvent
-        送信されたメッセージの情報です。
-    """
-
-    line_bot_api.reply_message(event.reply_token, res_data)
+    line_bot_api.reply_message(event.reply_token, )
 
 # async def send_request():
 #     while True:
