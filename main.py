@@ -26,7 +26,7 @@ async def root():
 
 
 connector = aiohttp.TCPConnector(ssl=False)
-deploy_url = "http://localhost:8080"
+deploy_url = "https://line-test-3axu.onrender.com"
 
 
 async def send_request():
