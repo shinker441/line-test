@@ -43,21 +43,21 @@ def root():
 
 
 @app.post("/webhook")
-async def line_webhook(body: Body):
-    print("===========================================================================")
-    global A
+async def line_webhook(request: Request):
+    data = await request.json()
+    # global A
 
-    A= {
-        "replyToken": body.replyToken,
-        "messeages": [
-            {
-                "type": "text",
-                "text": "hello",
-            }
-        ]
-    }
-    print(body)
-    return A
+    # A= {
+    #     "replyToken": body.replyToken,
+    #     "messeages": [
+    #         {
+    #             "type": "text",
+    #             "text": "hello",
+    #         }
+    #     ]
+    # }
+    # print(body)
+    return {"message": "recieved"}
 
 
 @handler.add(MessageEvent)
