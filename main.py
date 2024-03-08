@@ -1,54 +1,87 @@
 import os
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import JSONResponse
+import json
+import re
+import requests
+import asyncio
+import aiohttp
+from fastapi import FastAPI, Query, Header, Request
+from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 from linebot import LineBotApi, WebhookHandler
-from linebot.exceptions import InvalidSignatureError, LineBotApiError
-from linebot.models import MessageEvent, TextMessage, TextSendMessage
+from linebot.exceptions import InvalidSignatureError
+from linebot.models import MessageEvent
+from starlette.exceptions import HTTPException
 
-# 環境変数からLINE Messaging APIの設定値を取得
-LINE_CHANNEL_ACCESS_TOKEN = os.getenv("2003969131")
-LINE_CHANNEL_SECRET = os.getenv("2360bd36b3c2e5a794e0834b4ddd5fc2")
-
+load_dotenv()
+# FastAPIのインスタンス作成
 app = FastAPI()
 
-# LINE Bot APIクライアントのインスタンス化
-line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
-handler = WebhookHandler(LINE_CHANNEL_SECRET)
+# LINE Botに関するインスタンス作成
+line_bot_api = LineBotApi("2003969131")
+handler = WebhookHandler("2360bd36b3c2e5a794e0834b4ddd5fc2")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.get("/")
 def root():
-    return {"title": "Hello World"}
+    return {"title": 'hello world'}
+
 
 @app.post("/webhook")
-async def line_webhook(request: Request):
-    # リクエストボディと署名を取得
-    body = await request.body()
-    signature = request.headers.get('X-Line-Signature')
+async def line_webhook(message: str = Query(None)):  # Queryのデフォルト値をNoneに設定
+    print(message)
+    global A
 
-    # 署名の検証とイベントハンドラの呼び出し
-    try:
-        handler.handle(body.decode('utf-8'), signature)
-    except InvalidSignatureError:
-        raise HTTPException(status_code=400, detail="Invalid signature")
-    except LineBotApiError as e:
-        raise HTTPException(status_code=500, detail=f"Line Bot API error: {e}")
-    
-    return JSONResponse(content={"status": "success"})
-
-@handler.add(MessageEvent, message=TextMessage)
-def handle_text_message(event):
-    # ユーザーからのテキストメッセージに基づいて応答
-    user_message = event.message.text
-
-    if user_message == "こんにちは":
-        response_message = "こんにちは！いかがお過ごしですか？"
-    elif user_message == "こんばんは":
-        response_message = "こんばんは！素敵な夜をお過ごしください。"
+    if message == "こんにちは":
+        A = {
+            "message": [
+                {
+                    "type": "text",
+                    "text": "hello",
+                }
+            ]
+        }
+    elif message == "こんばんわ":
+        A = {
+            "message": [
+                {
+                    "type": "text",
+                    "text": "good night",
+                }
+            ]
+        }
     else:
-        response_message = "申し訳ありません、よく理解できませんでした。"
+        A = {
+            "message": [
+                {
+                    "type": "text",
+                    "text": "hello world"
+                }
+            ]
+        }
+    return A
 
-    # 応答メッセージの送信
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=response_message)
-    )
+
+@handler.add(MessageEvent)
+def handle_message(event):
+    line_bot_api.reply_message(event.reply_token, A)
+
+# async def send_request():
+#     while True:
+#         async with aiohttp.ClientSession(connector=connector) as session:
+#             async with session.get(deploy_url) as response:
+#                 print(await response.text())
+#         await asyncio.sleep(50)  # 50秒ごとにリクエストを送信
+
+
+# @app.on_event("startup")
+# async def startup_event():
+#     asyncio.create_task(send_request())
