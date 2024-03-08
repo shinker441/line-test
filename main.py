@@ -54,7 +54,6 @@ async def line_webhook(message: str = Query(None)):  # Queryのデフォルト�
             "type": "text",
             "text": "hello world"
         }
-
     return A
 
 '''
