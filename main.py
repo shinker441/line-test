@@ -56,7 +56,7 @@ async def line_webhook(body: Body):
             }
         ]
     }
-    print(A)
+    print(body)
     return A
 
 
