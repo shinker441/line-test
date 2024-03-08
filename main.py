@@ -36,7 +36,29 @@ def root():
 
 @app.post("/webhook")
 async def line_webhook(message: str = Query(None)):  # Queryのデフォルト値をNoneに設定
-    print(message)
+    print (message)
+    global A
+
+    if message == "こんにちは":
+        A = {
+            "type": "text",
+            "text": "hello",
+        }
+    elif message == "こんばんわ":
+        A = {
+            "type": "text",
+            "text": "good night",
+        }
+    else:
+        A = {
+            "type": "text",
+            "text": "hello world"
+        }
+
+    return A
+
+'''
+
     if message == "こんにちは":
         res_data = "message:こんにちは！ようこそ"
         print(res_data)
@@ -50,14 +72,12 @@ async def line_webhook(message: str = Query(None)):  # Queryのデフォルト�
         res_data = "すいません。よくわかりません。"
         print(res_data)
         return res_data
+'''
 
 
 @handler.add(MessageEvent)
 def handle_message(event):
-    
-    print()
-
-    line_bot_api.reply_message(event.reply_token, )
+    line_bot_api.reply_message(event.reply_token, A)
 
 # async def send_request():
 #     while True:
