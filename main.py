@@ -42,30 +42,27 @@ async def line_webhook(message: str = Query(None)):  # Queryのデフォルト�
 
     if message == "こんにちは":
         A = {
-            "message": [
+            "message":
                 {
                     "type": "text",
                     "text": "hello",
                 }
-            ]
         }
     elif message == "こんばんわ":
         A = {
-            "message": [
+            "message":
                 {
                     "type": "text",
                     "text": "good night",
                 }
-            ]
         }
     else:
         A = {
-            "message": [
+            "message":
                 {
                     "type": "text",
                     "text": "hello world"
                 }
-            ]
         }
     return A
 
