@@ -1,4 +1,5 @@
 import os
+import json
 import re
 import requests
 import asyncio
@@ -41,18 +42,33 @@ async def line_webhook(message: str = Query(None)):  # Queryのデフォルト�
 
     if message == "こんにちは":
         A = {
-            "type": "text",
-            "text": "hello",
+            "replyToken": json.loads(message['body']['events'][0]['replyToken']),
+            "message": [
+                {
+                    "type": "text",
+                    "text": "hello",
+                }
+            ]
         }
     elif message == "こんばんわ":
         A = {
-            "type": "text",
-            "text": "good night",
+            "replyToken": json.loads(message['body']['events'][0]['replyToken']),
+            "message": [
+                {
+                    "type": "text",
+                    "text": "good night",
+                }
+            ]
         }
     else:
         A = {
-            "type": "text",
-            "text": "hello world"
+            "replyToken": json.loads(message['body']['events'][0]['replyToken']),
+            "message": [
+                {
+                    "type": "text",
+                    "text": "hello world"
+                }
+            ]
         }
     return A
 
