@@ -1,19 +1,23 @@
-from linebot.models import (TextSendMessage)
+from linebot.models import TextSendMessage
 
 def send(message: str):
     """
     引数のメッセージに応答するメッセージを返します。
-
+    
     Parameters
     ----------
     message : str
         Messaging APIで受信したメッセージです。
-
+        
     Returns
     ----------
-    managent_bot : FlexSendMessage or TextSendMessage
+    management_bot : FlexSendMessage or TextSendMessage
     """
 
-    if message=="こんにちは":
+    # デフォルトの応答を設定
+    result = TextSendMessage(text="ごめんなさい、理解できませんでした。")
+    
+    if message == "こんにちは":
         result = TextSendMessage(text="hello")
+    
     return result
