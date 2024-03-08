@@ -28,9 +28,27 @@ line_bot_api = LineBotApi(
 def handle_message(message_text: str):
     # メッセージ内容に基づいた条件分岐
     if message_text == "こんにちは":
-        return "こんにちは！どういたしまして。"
+        return [
+                    {
+                        "message":  [
+                            {
+                                "type": "text",
+                                "text": "hello",
+                            }
+                        ]
+                    }
+                ]
     else:
-        return "申し訳ありません、理解できませんでした。"
+        return [
+                    {
+                        "message": [
+                            {
+                                "type": "text",
+                                "text": "hello world"
+                            }
+                        ]
+                    }
+                ]
 
 
 @app.post("/")
@@ -45,29 +63,8 @@ async def webhook(request: Request):
             # テキストメッセージの内容を取得
             message_text = event["message"]["text"]
             # 条件に基づく返答メッセージの決定
-            if message_text == "こんにちは":
-                response_message = [
-                    {
-                        "message":  [
-                            {
-                                "type": "text",
-                                "text": "hello",
-                            }
-                        ]
-                    }
-                ]
-            else:
-                response_message = [
-                    {
-                        "message": [
-                            {
-                                "type": "text",
-                                "text": "hello world"
-                            }
-                        ]
-                    }
-                ]
-
+            response_message = handle_message(message_text)
+            
             try:
                 # LINEユーザーに返答メッセージを送信
                 line_bot_api.reply_message(
