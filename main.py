@@ -30,7 +30,7 @@ async def callback(request: Request, background_tasks: BackgroundTasks):
     print(data_json)
     token = data_json["events"][0]["replyToken"]
 
-    # background_tasks.add_task(handle_message, data_json)
+    background_tasks.add_task(handle_message, data_json)
     # INFO:     147.92.150.193:0 - "POST / HTTP/1.1" 200 OK
 # '{"destination":"U94530c9340e4fe7045c73b0450a86980","events":[{"type":"message","message":{"type":"text","id":"498465752207065399","quoteToken":"NWEg2cuIKkGODtObK5YL2QL9Wzmws-kDYj2uaNvijNxWI2vy14zHX81qEGGJV9cEISHUB98TS3J02J1rBMCWyJRSvTRbUaam8CZ8M-6SLIagRdg74EQqq7Cf9DbUNF1_XtD1opq0xnUBVkrIwLYnPQ","text":"hello"},"webhookEventId":"01HRG5WXPRTKEDGEPCKG680NXS","deliveryContext":{"isRedelivery":false},"timestamp":1709940045104,"source":{"type":"user","userId":"Ufb88bea97c59e74464a5666598703157"},"replyToken":"16222b97f3ea474e8b062c0d6028c2ac","mode":"active"}]}'
     return {"message": "ok"}
