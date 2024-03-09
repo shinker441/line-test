@@ -51,10 +51,24 @@ async def callback(request: Request, background_tasks: BackgroundTasks):
 
 @handler.add(MessageEvent)
 def handle_message(data_json):
-    message = TextMessage(text=data_json["events"][0]["message"]["text"])
+    # Extract the text from the incoming message
+    incoming_text = data_json["events"][0]["message"]["text"]
+
     with open("faqs.json", "r", encoding="utf-8") as file:
         faqs = json.load(file)
 
     for item in faqs:
-        if message in item:        
-            line_bot_api.reply_message(data_json["events"][0]["replyToken"], item[message])
+        # Assuming faqs is a list of dictionaries where each item has a question and answer
+        # And you are checking if the incoming text matches any question in the FAQs
+        if incoming_text.lower() in item["question"].lower():
+            # Create a TextSendMessage object with the answer
+            reply_message = TextSendMessage(text=item["answer"])
+            line_bot_api.reply_message(
+                data_json["events"][0]["replyToken"], reply_message)
+            return  # Exit after sending the reply to avoid multiple replies
+
+    # Optional: send a default reply if no FAQ match is found
+    default_reply = TextSendMessage(
+        text="Sorry, I don't have an answer to that question.")
+    line_bot_api.reply_message(
+        data_json["events"][0]["replyToken"], default_reply)
