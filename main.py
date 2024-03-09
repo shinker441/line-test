@@ -6,21 +6,25 @@ from linebot.models import MessageEvent, TextSendMessage, TextMessage
 import json
 import os
 
+load_dotenv()
+
 app = FastAPI()
 
 # ApiRoot Health Check
+
+
 @app.get("/")
 def api_root():
     return {"message": "LINEBOT-API-TALK-A3RT Healthy"}
 
-load_dotenv()
 
 # LINE Messaging APIの準備
-CHANNEL_ACCESS_TOKEN=os.getenv("CHANNEL_ACCESS_TOKEN")
-CHANNEL_SECRET=os.getenv("CHANNEL_SECRET")
+CHANNEL_ACCESS_TOKEN = os.getenv("CHANNEL_ACCESS_TOKEN")
+CHANNEL_SECRET = os.getenv("CHANNEL_SECRET")
 
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
+
 
 @app.post("/")
 async def callback(request: Request, background_tasks: BackgroundTasks):
@@ -35,6 +39,8 @@ async def callback(request: Request, background_tasks: BackgroundTasks):
     return {"message": "ok"}
 
 # LINE Messaging APIからのメッセージイベントを処理
+
+
 @handler.add(MessageEvent)
 def handle_message(data_json):
     message = TextMessage(text=data_json["events"][0]["message"]["text"])
