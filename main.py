@@ -36,7 +36,7 @@ async def callback(request: Request, background_tasks: BackgroundTasks):
 
 # LINE Messaging APIからのメッセージイベントを処理
 @handler.add(MessageEvent)
-async def handle_message(data_json):
+def handle_message(data_json):
     message = TextMessage(text=data_json["events"][0]["message"]["text"])
     line_bot_api.reply_message(data_json["events"][0]["replyToken"], message)
 
