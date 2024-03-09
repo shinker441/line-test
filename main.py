@@ -4,6 +4,8 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextSendMessage, TextMessage
 import json
 import os
+import requests
+import re
 
 app = FastAPI()
 
@@ -18,6 +20,9 @@ def api_root():
 # LINE Messaging APIの準備
 CHANNEL_ACCESS_TOKEN = "l9mxZXowA7nMVUh0Ro2DZlGq6kezJfvY3bpheuI0i1XfK6xUhHcHdqAh8i9W0rbVC7p/u4R2w4eX4oY/7F5jUOvInvGqsm5AjwHGQPuasuuxnflF9T2AN8kfuMrA06K+AjETChr+3jiy35zsrQhwcQdB04t89/1O/w1cDnyilFU="
 CHANNEL_SECRET = "2360bd36b3c2e5a794e0834b4ddd5fc2"
+URL = "https://scrapbox.io/api/pages/christian-beginners/"
+question_re_pattern = re.compile((r"\?"))
+
 
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
@@ -60,8 +65,18 @@ def handle_message(data_json):
 
     for item in faqs:
         if incoming_text in item:
-            # Create a TextSendMessage object with the answer
-            reply_message = TextSendMessage(text=item[incoming_text])
+            response = requests.get(URL + item[incoming_text]).json()
+            descriptions = response.get("descriptions", [])
+
+            descriptions_list = [
+                description for description in descriptions
+                if not question_re_pattern.search(description)
+            ]
+
+            description_text = "".join(descriptions_list)
+
+
+            reply_message = TextSendMessage(text=description_text)
             line_bot_api.reply_message(
                 reply_token, reply_message)
             return  # Exit after sending the reply to avoid multiple replies
