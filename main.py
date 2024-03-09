@@ -52,4 +52,9 @@ async def callback(request: Request, background_tasks: BackgroundTasks):
 @handler.add(MessageEvent)
 def handle_message(data_json):
     message = TextMessage(text=data_json["events"][0]["message"]["text"])
-    line_bot_api.reply_message(data_json["events"][0]["replyToken"], message)
+    with open("faqs.json", "r", encoding="utf-8") as file:
+        faqs = json.load(file)
+
+    for item in faqs:
+        if message in item:        
+            line_bot_api.reply_message(data_json["events"][0]["replyToken"], item[message])
