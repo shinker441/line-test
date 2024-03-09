@@ -1,5 +1,0 @@
-dotenv
-fastapi
-linebot
-json
-os
