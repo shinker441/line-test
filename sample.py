@@ -1,27 +1,35 @@
-from fastapi import FastAPI, Header, Request, HTTPException
 from dotenv import load_dotenv
+from fastapi import FastAPI, BackgroundTasks, Header, HTTPException, Request
 from linebot import LineBotApi, WebhookHandler
-from linebot.exceptions import InvalidSignatureError, LineBotApiError
-from linebot.models import MessageEvent, TextSendMessage
-import os
+from linebot.exceptions import InvalidSignatureError
+from linebot.models import MessageEvent, TextSendMessage,TextMessage
+import json
 
-# 環境変数の読み込み
-load_dotenv()
-
-# FastAPIのインスタンス作成
 app = FastAPI()
 
-# LINE Botに関するインスタンス作成
-line_bot_api = LineBotApi("l9mxZXowA7nMVUh0Ro2DZlGq6kezJfvY3bpheuI0i1XfK6xUhHcHdqAh8i9W0rbVC7p/u4R2w4eX4oY/7F5jUOvInvGqsm5AjwHGQPuasuuxnflF9T2AN8kfuMrA06K+AjETChr+3jiy35zsrQhwcQdB04t89/1O/w1cDnyilFU=")
-handler = WebhookHandler("2360bd36b3c2e5a794e0834b4ddd5fc2")
-
+#ApiRoot Health Check
 @app.get("/")
-def root():
-    return {"title": 'hello world'}
+def api_root():
+    return {"message": "LINEBOT-API-TALK-A3RT Healthy"}
 
-@app.post("/callback")
-async def callback(request: Request):
+load_dotenv()
 
+#LINE Messaging APIの準備
+line_bot_api = LineBotApi("")
+handler = WebhookHandler("")
+
+@app.post("/")
+async def callback(request:Request,background_tasks:BackgroundTasks):
     body = await request.body()
-    print(body)
-    return {"text","hello"}
+    data_json = json.loads(body)
+    token =data_json["events"][0]["replyToken"]
+    background_tasks.add_task(handle_message,data_json)
+    #INFO:     147.92.150.193:0 - "POST / HTTP/1.1" 200 OK
+#'{"destination":"U94530c9340e4fe7045c73b0450a86980","events":[{"type":"message","message":{"type":"text","id":"498465752207065399","quoteToken":"NWEg2cuIKkGODtObK5YL2QL9Wzmws-kDYj2uaNvijNxWI2vy14zHX81qEGGJV9cEISHUB98TS3J02J1rBMCWyJRSvTRbUaam8CZ8M-6SLIagRdg74EQqq7Cf9DbUNF1_XtD1opq0xnUBVkrIwLYnPQ","text":"hello"},"webhookEventId":"01HRG5WXPRTKEDGEPCKG680NXS","deliveryContext":{"isRedelivery":false},"timestamp":1709940045104,"source":{"type":"user","userId":"Ufb88bea97c59e74464a5666598703157"},"replyToken":"16222b97f3ea474e8b062c0d6028c2ac","mode":"active"}]}'
+    return {"message":"ok"}
+
+#LINE Messaging APIからのメッセージイベントを処理
+@handler.add(MessageEvent)
+def handle_message(data_json):
+    message = TextMessage(text=data_json["events"][0]["message"]["text"])
+    line_bot_api.reply_message(data_json["events"][0]["replyToken"], message)
