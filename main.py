@@ -24,12 +24,13 @@ handler = WebhookHandler(CHANNEL_SECRET)
 
 
 @app.post("/")
-async def callback(request: Request):
+async def callback(request: Request,background_tasks:BackgroundTasks):
     body = await request.body()
     data_json = json.loads(body)
     print(data_json)
     if data_json["events"]!=None:
         token = data_json["events"][0]["replyToken"]
+        background_tasks.add_task(handle_message,data_json)
     else :
         return 0
 
