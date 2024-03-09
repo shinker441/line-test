@@ -53,22 +53,21 @@ async def callback(request: Request, background_tasks: BackgroundTasks):
 def handle_message(data_json):
     # Extract the text from the incoming message
     incoming_text = data_json["events"][0]["message"]["text"]
+    reply_token = data_json["events"][0]["replyToken"]
 
     with open("faqs.json", "r", encoding="utf-8") as file:
         faqs = json.load(file)
 
     for item in faqs:
-        # Assuming faqs is a list of dictionaries where each item has a question and answer
-        # And you are checking if the incoming text matches any question in the FAQs
-        if incoming_text.lower() in item["question"].lower():
+        if incoming_text in item:
             # Create a TextSendMessage object with the answer
-            reply_message = TextSendMessage(text=item["answer"])
+            reply_message = TextSendMessage(text=item[incoming_text])
             line_bot_api.reply_message(
-                data_json["events"][0]["replyToken"], reply_message)
+                reply_token, reply_message)
             return  # Exit after sending the reply to avoid multiple replies
 
     # Optional: send a default reply if no FAQ match is found
     default_reply = TextSendMessage(
-        text="Sorry, I don't have an answer to that question.")
+        text="解答はありません")
     line_bot_api.reply_message(
-        data_json["events"][0]["replyToken"], default_reply)
+        reply_token, default_reply)
