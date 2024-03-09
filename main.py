@@ -28,7 +28,10 @@ async def callback(request: Request):
     body = await request.body()
     data_json = json.loads(body)
     print(data_json)
-    token = data_json["events"][0]["replyToken"]
+    if data_json["events"]!=None:
+        token = data_json["events"][0]["replyToken"]
+    else :
+        return 0
 
     return {"message": "ok"}
 
