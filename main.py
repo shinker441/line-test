@@ -24,17 +24,27 @@ handler = WebhookHandler(CHANNEL_SECRET)
 
 
 @app.post("/")
-async def callback(request: Request,background_tasks:BackgroundTasks):
+async def callback(request: Request, background_tasks: BackgroundTasks):
     body = await request.body()
     data_json = json.loads(body)
     print(data_json)
-    if data_json["events"]!=None:
-        token = data_json["events"][0]["replyToken"]
-        background_tasks.add_task(handle_message,data_json)
-    else :
-        return 0
+
+    # Check if "events" key exists and it is not an empty list
+    if "events" in data_json and data_json["events"]:
+        try:
+            # Proceed knowing that data_json["events"] is not empty
+            token = data_json["events"][0]["replyToken"]
+            background_tasks.add_task(handle_message, data_json)
+        except IndexError:
+            # Handle the case where the list is shorter than expected
+            print("Received 'events' list is shorter than expected.")
+            return {"error": "Invalid event data."}
+    else:
+        print("No events found in the request body.")
+        return {"error": "No events found."}
 
     return {"message": "ok"}
+
 
 # LINE Messaging APIからのメッセージイベントを処理
 
