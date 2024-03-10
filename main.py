@@ -1,7 +1,7 @@
 from fastapi import FastAPI, BackgroundTasks, Header, HTTPException, Request
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import MessageEvent, TextSendMessage, TextMessage
+from linebot.models import MessageEvent, TextSendMessage, TextMessage, QuickReply, QuickReplyButton, MessageAction
 import json
 import os
 import requests
@@ -22,7 +22,6 @@ CHANNEL_ACCESS_TOKEN = "l9mxZXowA7nMVUh0Ro2DZlGq6kezJfvY3bpheuI0i1XfK6xUhHcHdqAh
 CHANNEL_SECRET = "2360bd36b3c2e5a794e0834b4ddd5fc2"
 URL = "https://scrapbox.io/api/pages/christian-beginners/"
 question_re_pattern = re.compile((r"\?"))
-
 
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
@@ -50,7 +49,6 @@ async def callback(request: Request, background_tasks: BackgroundTasks):
 
     return {"message": "ok"}
 
-
 # LINE Messaging APIからのメッセージイベントを処理
 
 
@@ -59,6 +57,20 @@ def handle_message(data_json):
     # Extract the text from the incoming message
     incoming_text = data_json["events"][0]["message"]["text"]
     reply_token = data_json["events"][0]["replyToken"]
+
+    # 特定の応答のための条件チェック
+    if incoming_text == "いいえ解決していません":
+        line_bot_api.reply_message(
+            reply_token,
+            TextSendMessage(text="もう一度お手伝いできることがあれば教えてください。")
+        )
+        return
+    elif incoming_text == "はい":
+        line_bot_api.reply_message(
+            reply_token,
+            TextSendMessage(text="良かったです。また何かあれば教えてください。")
+        )
+        return
 
     with open("faqs.json", "r", encoding="utf-8") as file:
         faqs = json.load(file)
@@ -75,10 +87,23 @@ def handle_message(data_json):
 
             description_text = "".join(descriptions_list)
 
+            text_message_with_quick_reply = TextSendMessage(
+                text="質問の回答は" + description_text + "です。問題は解決しましたか?",
+                quick_reply=QuickReply(
+                    items=[
+                        QuickReplyButton(
+                            action=MessageAction(label="Yes", text="はい")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(
+                                label="No", text="いいえ解決していません")
+                        )
+                    ]
+                )
+            )
 
-            reply_message = TextSendMessage(text=description_text)
             line_bot_api.reply_message(
-                reply_token, reply_message)
+                reply_token, text_message_with_quick_reply)
             return  # Exit after sending the reply to avoid multiple replies
 
     # Optional: send a default reply if no FAQ match is found
