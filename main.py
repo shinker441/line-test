@@ -18,8 +18,8 @@ def api_root():
 
 
 # LINE Messaging APIの準備
-CHANNEL_ACCESS_TOKEN = "l9mxZXowA7nMVUh0Ro2DZlGq6kezJfvY3bpheuI0i1XfK6xUhHcHdqAh8i9W0rbVC7p/u4R2w4eX4oY/7F5jUOvInvGqsm5AjwHGQPuasuuxnflF9T2AN8kfuMrA06K+AjETChr+3jiy35zsrQhwcQdB04t89/1O/w1cDnyilFU="
-CHANNEL_SECRET = "2360bd36b3c2e5a794e0834b4ddd5fc2"
+CHANNEL_ACCESS_TOKEN = "CHANNEL_ACCESS_TOKEN"
+CHANNEL_SECRET = "CHANNEL_SECRET"
 URL = "https://scrapbox.io/api/pages/christian-beginners/"
 question_re_pattern = re.compile((r"\?"))
 
@@ -46,7 +46,6 @@ async def callback(request: Request, background_tasks: BackgroundTasks):
     else:
         print("No events found in the request body.")
         return {"error": "No events found."}
-
     return {"message": "ok"}
 
 # LINE Messaging APIからのメッセージイベントを処理
@@ -88,7 +87,7 @@ def handle_message(data_json):
             description_text = "".join(descriptions_list)
 
             text_message_with_quick_reply = TextSendMessage(
-                text="質問の回答は" + description_text + "です。問題は解決しましたか?",
+                text="質問の回答は\n 「" + description_text + "」です。\n \n問題は解決しましたか?",
                 quick_reply=QuickReply(
                     items=[
                         QuickReplyButton(
